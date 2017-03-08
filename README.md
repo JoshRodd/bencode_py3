@@ -1,4 +1,4 @@
-#bencode_py3 1.01329139
+#bencode_py3 1.101329139
 
 This package simply re-packages the existing bencoding and bdecoding
 implemention from the 'official' BitTorrent client as a separate,
