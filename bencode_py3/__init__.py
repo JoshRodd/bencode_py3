@@ -9,9 +9,10 @@
 # License.
 
 # Written by Petru Paler
+# Ported to Python 3 by Adam Delman
 
-from BTL import BTFailure
-
+class BTFailure(Exception):
+    pass
 
 def decode_int(x, f):
     f += 1
@@ -20,27 +21,27 @@ def decode_int(x, f):
     if x[f] == '-':
         if x[f + 1] == '0':
             raise ValueError
-    elif x[f] == '0' and newf != f+1:
+    elif x[f] == '0' and newf != f + 1:
         raise ValueError
-    return (n, newf+1)
+    return (n, newf + 1)
 
-def decode_string(x, f):
-    colon = x.index(':', f)
-    n = int(x[f:colon])
-    if x[f] == '0' and colon != f+1:
+def decode_string(bencoded_string, f):
+    colon = bencoded_string.index(':', f)
+    n = int(bencoded_string[f:colon])
+    if bencoded_string[f] == '0' and colon != f + 1:
         raise ValueError
     colon += 1
-    return (x[colon:colon+n], colon+n)
+    return (bencoded_string[colon:colon + n], colon + n)
 
-def decode_list(x, f):
-    r, f = [], f+1
-    while x[f] != 'e':
-        v, f = decode_func[x[f]](x, f)
+def decode_list(bencoded_list, f):
+    r, f = [], f + 1
+    while bencoded_list[f] != 'e':
+        v, f = decode_func[bencoded_list[f]](bencoded_list, f)
         r.append(v)
     return (r, f + 1)
 
-def decode_dict(x, f):
-    r, f = {}, f+1
+def decode_dict(bencoded_dict, f):
+    r, f = {}, f + 1
     while x[f] != 'e':
         k, f = decode_string(x, f)
         r[k], f = decode_func[x[f]](x, f)
@@ -61,16 +62,16 @@ decode_func['7'] = decode_string
 decode_func['8'] = decode_string
 decode_func['9'] = decode_string
 
-def bdecode(x):
+def bdecode(bencoded_string):
+    if isinstance(bencoded_string, bytes):
+        bencoded_string = bencoded_string.decode("ascii")
     try:
-        r, l = decode_func[x[0]](x, 0)
+        decoded_string, decoded_length = decode_func[bencoded_string[0]](bencoded_string, 0)
     except (IndexError, KeyError, ValueError):
         raise BTFailure("not a valid bencoded string")
-    if l != len(x):
+    if decoded_length != len(bencoded_string):
         raise BTFailure("invalid bencoded value (data after valid prefix)")
-    return r
-
-from types import StringType, IntType, LongType, DictType, ListType, TupleType
+    return decoded_string
 
 
 class Bencached(object):
@@ -80,44 +81,57 @@ class Bencached(object):
     def __init__(self, s):
         self.bencoded = s
 
-def encode_bencached(x,r):
-    r.append(x.bencoded)
+def encode_bencached(printable_obj):
+    result_string = str()
+    result_string += x.bencoded
+    return result_string
 
-def encode_int(x, r):
-    r.extend(('i', str(x), 'e'))
+def encode_int(int_obj):
+    result_string = 'i'
+    result_string += str(int_obj)
+    result_string += 'e'
+    return result_string
 
-def encode_bool(x, r):
+def encode_bool(bool_obj):
     if x:
-        encode_int(1, r)
+        result_string += encode_int(1)
     else:
-        encode_int(0, r)
+        result_string += encode_int(0)
+    return result_string
         
-def encode_string(x, r):
-    r.extend((str(len(x)), ':', x))
+def encode_string(printable_string):
+    result_string = str(len(printable_string))
+    result_string += ':'
+    result_string += printable_string
+    return result_string
 
-def encode_list(x, r):
-    r.append('l')
-    for i in x:
-        encode_func[type(i)](i, r)
-    r.append('e')
+def encode_list(printable_obj_list):
+    result_string = 'l'
+    for i in printable_obj_list:
+        result_string += encode_func[type(i)](i)
+    result_string += 'e'
+    return result_string
 
-def encode_dict(x,r):
-    r.append('d')
-    ilist = x.items()
+def encode_dict(printable_obj_dict):
+    result_string = 'd'
+    ilist = printable_obj_dict.items()
     ilist.sort()
     for k, v in ilist:
-        r.extend((str(len(k)), ':', k))
-        encode_func[type(v)](v, r)
-    r.append('e')
+        result_string += len(k)
+        result_string += ':'
+        result_string += k
+        result_string += encode_func[type(v)](v)
+    result_string += 'e'
+    return result_string
 
 encode_func = {}
 encode_func[Bencached] = encode_bencached
-encode_func[IntType] = encode_int
-encode_func[LongType] = encode_int
-encode_func[StringType] = encode_string
-encode_func[ListType] = encode_list
-encode_func[TupleType] = encode_list
-encode_func[DictType] = encode_dict
+encode_func[int] = encode_int
+encode_func[str] = encode_string
+encode_func[bytes] = encode_string
+encode_func[list] = encode_list
+encode_func[tuple] = encode_list
+encode_func[dict] = encode_dict
 
 try:
     from types import BooleanType
@@ -125,7 +139,9 @@ try:
 except ImportError:
     pass
 
-def bencode(x):
-    r = []
-    encode_func[type(x)](x, r)
-    return ''.join(r)
+def bencode(printable_obj):
+    result_string = str()
+    result_string += encode_func[type(printable_obj)](printable_obj)
+    return result_string
+
+
