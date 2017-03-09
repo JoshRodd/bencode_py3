@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bencode_py3',
-    packages=find_packages(),
+    packages=['bencode_py3'],
     version='1.1329139004',
     description="The BitTorrent bencode module as light-weight, standalone package, ported to Python 3",
     author="Josh Rodd",
