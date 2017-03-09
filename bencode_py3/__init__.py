@@ -74,15 +74,18 @@ def bdecode(x):
         raise BTFailure("invalid bencoded value (data after valid prefix)")
     return r
 
+
 encode_func = {}
-#encode_func[Bencached] = lambda x: str(x.bencoded)
+
+bencode = lambda x: encode_func[type(x)](x)
+
 encode_func[int] = lambda x: 'i' + str(x) + 'e'
-encode_func[bool] = lambda x: encode_func[int](1) if x else encode_func[int](0)
+encode_func[bool] = lambda x: bencode(1) if x else bencode(0)
 encode_func[str] = lambda x: str(len(x)) + ':' + x
 encode_func[bytes] = encode_func[str]
-encode_func[list] = lambda x: ''.join(('l', ''.join([encode_func[type(i)](i) for i in x]), 'e'))
+encode_func[list] = lambda x: ''.join(('l', ''.join([bencode(i) for i in x]), 'e'))
 encode_func[tuple] = encode_func[list]
-encode_func[dict] = lambda x: ''.join(('d', ''.join([(''.join((str(len(k)), ':', k, encode_func[type(v)](v)))) for k, v in sorted(x.items())]), 'e'))
+encode_func[dict] = lambda x: ''.join(('d', ''.join([(''.join((str(len(k)), ':', k, bencode(v)))) for k, v in sorted(x.items())]), 'e'))
 
 # For Python 2.x
 try:
@@ -125,6 +128,3 @@ try:
     encode_func[TupleType] = encode_func[tuple]
 except ImportError:
     pass
-
-def bencode(x):
-    return encode_func[type(x)](x)
