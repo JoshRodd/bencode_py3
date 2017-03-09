@@ -79,13 +79,13 @@ encode_func = {}
 
 bencode = lambda x: encode_func[type(x)](x)
 
-encode_func[int] = lambda x: 'i' + str(x) + 'e'
+encode_func[int] = lambda x: ''.join(('i', str(x), 'e'))
 encode_func[bool] = lambda x: bencode(1) if x else bencode(0)
-encode_func[str] = lambda x: str(len(x)) + ':' + x
+encode_func[str] = lambda x: ''.join((str(len(x)), ':', x))
 encode_func[bytes] = encode_func[str]
 encode_func[list] = lambda x: ''.join(('l', ''.join([bencode(i) for i in x]), 'e'))
 encode_func[tuple] = encode_func[list]
-encode_func[dict] = lambda x: ''.join(('d', ''.join([(''.join((str(len(k)), ':', k, bencode(v)))) for k, v in sorted(x.items())]), 'e'))
+encode_func[dict] = lambda x: ''.join(('d', ''.join([(''.join((bencode(k), bencode(v)))) for k, v in sorted(x.items())]), 'e'))
 
 # For Python 2.x
 try:
