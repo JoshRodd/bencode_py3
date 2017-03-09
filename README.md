@@ -16,3 +16,5 @@ It does not contain any tests or a benchmark.
 Ported to work with Python 3 by Adam Delman.
 
 Packaged by Josh Rodd, josh@rodd.us
+
+Submit patches to http://github.com/JoshRodd/bencode_py3
