@@ -1,4 +1,4 @@
-#bencode\_py3 1.1329139002
+#bencode\_py3 1.1329139003
 
 This package simply re-packages the existing bencoding and bdecoding
 implemention from the "official" BitTorrent client as a separate,
@@ -13,8 +13,8 @@ Originally packaged by Tom Lazar, tom@tomster.org
 
 It does not contain any tests or a benchmark.
 
-Ported to work with Python 3 by Adam Delman.
+Partially ported to work with Python 3 by Adam Delman.
 
-Packaged by Josh Rodd, josh@rodd.us
+Remainder ported to Python 3 and packaged by Josh Rodd, josh@rodd.us
 
 Submit patches to http://github.com/JoshRodd/bencode_py3
