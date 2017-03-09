@@ -9,7 +9,8 @@
 # License.
 
 # Written by Petru Paler
-# Ported to Python 3 by Adam Delman
+# Partially ported to Python 3 by Adam Delman
+# Remainder ported to Python 3 by Josh Rodd
 
 class BTFailure(Exception):
     pass
@@ -42,9 +43,9 @@ def decode_list(bencoded_list, f):
 
 def decode_dict(bencoded_dict, f):
     r, f = {}, f + 1
-    while x[f] != 'e':
-        k, f = decode_string(x, f)
-        r[k], f = decode_func[x[f]](x, f)
+    while bencoded_dict[f] != 'e':
+        k, f = decode_string(bencoded_dict, f)
+        r[k], f = decode_func[bencoded_dict[f]](bencoded_dict, f)
     return (r, f + 1)
 
 decode_func = {}
@@ -83,7 +84,7 @@ class Bencached(object):
 
 def encode_bencached(printable_obj):
     result_string = str()
-    result_string += x.bencoded
+    result_string += printable_obj.bencoded
     return result_string
 
 def encode_int(int_obj):
@@ -93,7 +94,8 @@ def encode_int(int_obj):
     return result_string
 
 def encode_bool(bool_obj):
-    if x:
+    result_string = ''
+    if bool_obj: 
         result_string += encode_int(1)
     else:
         result_string += encode_int(0)
@@ -115,9 +117,9 @@ def encode_list(printable_obj_list):
 def encode_dict(printable_obj_dict):
     result_string = 'd'
     ilist = printable_obj_dict.items()
-    ilist.sort()
+    ilist = sorted(ilist)
     for k, v in ilist:
-        result_string += len(k)
+        result_string += str(len(k))
         result_string += ':'
         result_string += k
         result_string += encode_func[type(v)](v)
@@ -132,6 +134,7 @@ encode_func[bytes] = encode_string
 encode_func[list] = encode_list
 encode_func[tuple] = encode_list
 encode_func[dict] = encode_dict
+encode_func[bool] = encode_bool
 
 try:
     from types import BooleanType
