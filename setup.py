@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = "bencode_py3",
-    version = "1.101329139",
+    version = "1.1329139002",
     packages = find_packages(),
 
     # metadata for upload to PyPI
