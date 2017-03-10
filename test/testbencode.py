@@ -10,9 +10,9 @@ __date__ = "$Date: 2007/07/29 $"
 __copyright__ = "Copyright (c) 2007 Tom Lazar"
 __license__ = "BitTorrent Open Source License"
 
-from bencode_py3 import bencode
-from bencode_py3 import bdecode
-from bencode_py3 import BTFailure
+from bencode import bencode
+from bencode import bdecode
+from bencode import BTFailure
 
 import unittest
 
