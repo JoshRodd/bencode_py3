@@ -6,7 +6,21 @@ bencode_py3
 
 Initial release.
 
+
 1.1329139004
 ------------
 
 Fixed packaging.
+
+
+1.1329139005
+------------
+
+Change to encoding functions to be faster and less complicated. The old
+functions are still present for backwards compatibility.
+
+Works with both Python 2.x and 3.
+
+Uses unit tests from bencode-1.0 without any changes.
+
+Compatible with code written for bencode-1.0.
