@@ -70,18 +70,18 @@ def bdecode_ascii(x):
 
 encode_func3 = {
     int: lambda x: ''.join(('i', str(x), 'e')),
-    bool: lambda x: bencode(1) if x else bencode(0),
+    bool: lambda x: bencode3(1) if x else bencode3(0),
+    bytes: lambda x: ''.join((str(len(x.decode('ascii'))), ':', x.decode('ascii'))),
     str: lambda x: ''.join((str(len(x)), ':', x)),
     list:  lambda x:\
-       ''.join(('l', ''.join([bencode(i) for i in x]), 'e')),
+       ''.join(('l', ''.join([bencode3(i) for i in x]), 'e')),
     dict: lambda x:\
-       ''.join(('d', ''.join([(''.join((bencode(k), bencode(v))))\
+       ''.join(('d', ''.join([(''.join((bencode3(k), bencode3(v))))\
        for k, v in sorted(x.items())]), 'e')),
 }
 
 bencode3 = lambda x: encode_func3[type(x)](x)
 
-encode_func3[bytes] = encode_func3[str]
 encode_func3[tuple] = encode_func3[list]
 
 # For backwards compatibility only
@@ -104,6 +104,9 @@ def encode_bool(x, r):
 def encode_string(x, r):
     r.extend((str(len(x)), ':', x))
 
+def encode_bytes(x, r):
+    encode_string(x.decode('ascii'), r)
+
 def encode_list(x, r):
     r.append('l')
     for i in x:
@@ -124,10 +127,16 @@ encode_func = {
     str: encode_string,
     list: encode_list,
     dict: encode_dict,
+#    bytes: encode_bytes,
 }
 
-encode_func[bytes] = encode_func[str]
 encode_func[tuple] = encode_func[list]
+
+# For Python 3.x
+try:
+    encode_func[bytes] = encode_bytes
+except NameError:
+    pass
 
 # For Python 2.x
 try:
