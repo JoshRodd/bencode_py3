@@ -29,6 +29,7 @@ class KnownValues(unittest.TestCase):
                     (True, 'i1e'),
                     (False, 'i0e'),
                     ('spam', '4:spam'),
+                    (u'parrot sketch', '13:parrot sketch'),
                     ('parrot sketch', '13:parrot sketch'),
                     (['parrot sketch', 42], 'l13:parrot sketchi42ee'),
                     ({
@@ -36,6 +37,14 @@ class KnownValues(unittest.TestCase):
                         'bar' : 'spam'
                     }, 'd3:bar4:spam3:fooi42ee'),
                   )
+
+    def testBencodeBytes(self):
+        """ASCII bytes and strings should encode the same way"""
+        byt = b'parrot sketch'
+        asc = byt.decode('ascii')
+        bytresult = bencode(byt)
+        ascresult = bencode(asc)
+        self.assertEqual(bytresult, ascresult)
 
     def testBencodeKnownValues(self):
         """bencode should give known result with known input"""
@@ -72,6 +81,14 @@ class IllegaleValues(unittest.TestCase):
     # def testFloatRaisesIllegalForEncode(self):
     #     """ floats cannot be encoded. """
     #     self.assertRaises(BTFailure, bencode, 1.0)
+
+    def testNonAsciiBytesRaise(self):
+        """ should not accept 8-bit binary bytes (Python 3 only) """
+        import sys
+        if sys.version_info > (3, 0):
+            self.assertRaises(UnicodeDecodeError, bencode, b'\xfe')
+        else:
+            pass
 
     def testNonStringsRaiseIllegalInputForDecode(self):
         """ non-strings should raise an exception. """
