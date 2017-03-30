@@ -24,3 +24,13 @@ Works with both Python 2.x and 3.
 Uses unit tests from bencode-1.0 without any changes.
 
 Compatible with code written for bencode-1.0.
+
+
+1.329139006
+-----------
+
+Encoding bytes in addition to strings is supported on Python 3, provided
+the bytes are purely ASCII strings and when decoding, a string is returned,
+not bytes.
+
+Behaviour on Python 2 has not changed.
